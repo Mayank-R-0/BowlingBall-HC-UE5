@@ -1,0 +1,2 @@
+../../../Engine/Content/EngineMaterials/DefaultBloomKernel.uasset
+../../../Engine/Content/EngineMaterials/DefaultBloomKernel.uexp
