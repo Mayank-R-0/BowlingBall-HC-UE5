@@ -82,11 +82,6 @@
 		{
 			"Name": "WmfMedia",
 			"Enabled": false
-		},
-		{
-			"Name": "AdvancedControlFlow",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/ee3ad06d0d344b4ca1250d135e1df7e2"
 		}
 	]
 }
