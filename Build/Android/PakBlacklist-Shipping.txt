@@ -1,2 +1,4 @@
 ../../../Engine/Content/EngineMaterials/DefaultBloomKernel.uasset
 ../../../Engine/Content/EngineMaterials/DefaultBloomKernel.uexp
+../../../Engine/Content/MapTemplates/Sky/Desert_Outer_HDR.uasset
+../../../Engine/Content/MapTemplates/Sky/Desert_Outer_HDR_Mat.uasset
