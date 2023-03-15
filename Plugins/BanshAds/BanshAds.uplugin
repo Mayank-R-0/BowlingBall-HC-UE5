@@ -1,0 +1,40 @@
+{
+	"FileVersion": 3,
+	"Version": 2,
+	"VersionName": "2.0.7",
+	"FriendlyName": "BanshAds",
+	"Description": "It provides ADMOB functionlities for advertisement like BANNER, INTERSTIAL and REWARED and Medition Unity ads, Meta, Vungle, AdColony,ect.",
+	"Category": "Ads",
+	"CreatedBy": "BANSH GAMES",
+	"CreatedByURL": "https://www.banshgames.com",
+	"DocsURL": "http://wwww.banshgames.com/BanshAds.html",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/63ec0d8268bf45d59c3fa1648c56ddc6",
+	"SupportURL": "http://wwww.banshgames.com/BanshAds.html",
+	"EngineVersion": "5.0.0",
+	"CanContainContent": false,
+	"Installed": true,
+	"SupportedTargetPlatforms": [
+		"Android"
+	],
+	"Modules": [
+		{
+			"Name": "AdMob",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [
+				"Android",
+				"Win64",
+				"Mac"
+			]
+		},
+		{
+			"Name": "AdsEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac"
+			]
+		}
+	]
+}

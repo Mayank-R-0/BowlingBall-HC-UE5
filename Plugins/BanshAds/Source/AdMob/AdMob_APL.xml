@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--Admob plugin additions-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- init section is always evaluated once per architecture -->
+	<init>
+		<log text="Admob Android init"/>
+
+		<!-- get packaging for Admob from ini and reset it if architecture not supported -->
+		<setBoolFromProperty result="bAdMobEnable" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bAndroidEnabled" default="true"/>
+		<setStringFromProperty result="AppId" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="AppId" default="ca-app-pub-3940256099942544~3347511713"/>
+        <setStringFromProperty result="testDeviceID" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="testDeviceID" default="0"/>
+
+
+        <setBoolFromProperty result="bFamilyPolicy" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bFamilyPolicy" default="false"/>
+
+
+        <!-- Set medition for diffrent ad networks -->
+		<setBoolFromProperty result="bMediationEnable" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bMediationEnable" default="false"/>
+		<setBoolFromProperty result="bAdColonyEnable" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bAdColonyEnable" default="false"/>
+		<setBoolFromProperty result="bAppLovinEnable" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bAppLovinEnable" default="false"/>
+		<setBoolFromProperty result="bChartBoostEnable" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bChartBoostEnable" default="false"/>
+		<setBoolFromProperty result="bMetaEnable" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bMetaEnable" default="false"/>
+        <setBoolFromProperty result="bUnityAds" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bUnityAds" default="false"/>
+        <setBoolFromProperty result="bVungle" ini="Engine" section="/Script/AdsEditor.AdMobSetting" property="bVungle" default="false"/>
+
+        <!-- Toggle medition depends upon mediation and admob -->
+		<setBoolAnd result="bMediationEnable" arg1="$B(bAdMobEnable)" arg2="$B(bMediationEnable)"/>
+		<setBoolAnd result="bAdColonyEnable" arg1="$B(bAdColonyEnable)" arg2="$B(bMediationEnable)"/>
+		<setBoolAnd result="bAppLovinEnable" arg1="$B(bAppLovinEnable)" arg2="$B(bMediationEnable)"/>
+		<setBoolAnd result="bChartBoostEnable" arg1="$B(bChartBoostEnable)" arg2="$B(bMediationEnable)"/>
+		<setBoolAnd result="bMetaEnable" arg1="$B(bMetaEnable)" arg2="$B(bMediationEnable)"/>
+		<setBoolAnd result="bUnityAds" arg1="$B(bUnityAds)" arg2="$B(bMediationEnable)"/>
+		<setBoolAnd result="bVungle" arg1="$B(bVungle)" arg2="$B(bMediationEnable)"/>
+
+        <!-- Disable AD networks that doesn't certified for family policy -->
+		<setBoolNot result="notFamilyPolicy" source="$B(bFamilyPolicy)"/>
+        <setBoolAnd result="bMetaEnable" arg1="$B(bMetaEnable)" arg2="$B(notFamilyPolicy)"/>
+
+		<dumpvars/>
+	</init>
+<trace enable="true"/>
+
+		<gradleProperties>
+			<if condition="bAdMobEnable"><true><insert>
+
+        android.useAndroidX=true
+        android.enableJetifier=true
+
+            </insert></true></if>
+</gradleProperties>
+
+	<!-- AAR dependencies -->
+    <AARImports>
+        <if condition="bAdMobEnable"> <true>
+
+                <replace find="com.google.android.gms,play-services-auth,11.8.0" with="//"/>
+				<replace find="com.google.android.gms,play-services-games,11.8.0" with="//"/>
+				<replace find="com.google.android.gms,play-services-nearby,11.8.0" with="//"/>
+
+            </true> </if>
+    </AARImports>
+
+
+	<baseBuildGradleAdditions>
+		<if condition="bAdMobEnable"> <true>
+				<insert></insert>
+			</true> </if>
+	</baseBuildGradleAdditions>
+
+
+	<androidManifestUpdates>
+		<if condition="bAdMobEnable"> <true>
+
+		<setElement result="AppIdMetadata" value="meta-data"/>
+        <addAttribute tag="$AppIdMetadata" name="android:name" value="com.google.android.gms.ads.APPLICATION_ID"/>
+        <addAttribute tag="$AppIdMetadata" name="android:value" value="$S(AppId)"/>
+        <addElement tag="application" name="AppIdMetadata"/>
+
+			</true> </if>
+
+		<if condition="bChartBoostEnable"> <true>
+			<insert>
+				<![CDATA[android:configChanges="keyboardHidden|orientation|screenSize"
+				]]>
+			</insert>
+
+			</true> </if>
+
+
+	</androidManifestUpdates>
+
+
+
+<buildGradleAdditions>
+	<if condition="bAdMobEnable"><true><insert>
+
+	buildscript {
+    repositories {
+        google()
+        mavenCentral()   } }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()  } }
+
+
+
+     apply plugin:'com.android.application'
+
+			android {
+			compileOptions {
+			sourceCompatibility 1.8
+			targetCompatibility 1.8
+			}
+			}
+
+			allprojects {
+			def mappings = [
+			'android.support.annotation': 'androidx.annotation',
+			'android.arch.lifecycle': 'androidx.lifecycle',
+			'android.support.v4.app.NotificationCompat': 'androidx.core.app.NotificationCompat',
+			'android.support.v4.app.NotificationManagerCompat': 'androidx.core.app.NotificationManagerCompat',
+			'android.support.v4.app.ActivityCompat': 'androidx.core.app.ActivityCompat',
+			'android.support.v4.content.ContextCompat': 'androidx.core.content.ContextCompat',
+			'android.support.v4.content.FileProvider': 'androidx.core.content.FileProvider',
+			'android.support.v13.app.FragmentCompat': 'androidx.legacy.app.FragmentCompat',
+			'android.arch.lifecycle.Lifecycle': 'androidx.lifecycle.Lifecycle',
+			'android.arch.lifecycle.LifecycleObserver': 'androidx.lifecycle.LifecycleObserver',
+			'android.arch.lifecycle.OnLifecycleEvent': 'androidx.lifecycle.OnLifecycleEvent',
+			'android.arch.lifecycle.ProcessLifecycleOwner': 'androidx.lifecycle.ProcessLifecycleOwner',
+			]
+
+
+			afterEvaluate { project ->
+			project.rootProject.projectDir.traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.*\.java$/) { f ->
+			mappings.each { entry ->
+			if (f.getText('UTF-8').contains(entry.key)) {
+			println "Updating ${entry.key} to ${entry.value} in file ${f}"
+			ant.replace(file: f, token: entry.key, value: entry.value)
+			}}}}}
+
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.gms:play-services-ads:19.6.0'
+	implementation 'com.google.android.gms:play-services-auth:20.2.0'
+	implementation 'com.google.android.gms:play-services-games:22.0.1'
+	implementation 'com.google.android.gms:play-services-nearby:18.2.0' }
+
+
+		</insert></true></if>
+
+		<if condition="bChartBoostEnable">
+			<true>
+				<insertNewline/>
+				<insert> dependencies { implementation  'com.google.ads.mediation:chartboost:8.2.0.0'	}</insert>
+			<insertNewline/>
+			</true>
+		</if>
+
+	    <if condition="bAppLovinEnable">
+			<true>
+				<insertNewline/>
+				<insert> dependencies { implementation  'com.google.ads.mediation:applovin:9.14.12.0'	}</insert>
+			<insertNewline/>
+			</true>
+		</if>
+
+		<if condition="bAdColonyEnable">
+			<true>
+				<insertNewline/>
+				<insert>dependencies {	implementation  'com.google.ads.mediation:adcolony:4.3.0.0'		}</insert>
+			<insertNewline/>
+			</true>
+		</if>
+
+	    <if condition="bMetaEnable">
+			<true>
+				<insertNewline/>
+				<insert>dependencies {    implementation  'com.google.ads.mediation:facebook:6.2.0.1'	}</insert>
+			<insertNewline/>
+			</true>
+		</if>
+
+	    <if condition="bUnityAds">
+			<true>
+				<insertNewline/>
+				<insert>dependencies {    implementation  'com.unity3d.ads:unity-ads:3.6.0'
+                                              implementation  'com.google.ads.mediation:unity:3.6.0.0'	}</insert>
+			<insertNewline/>
+			</true>
+		</if>
+
+	    <if condition="bVungle">
+			<true>
+				<insertNewline/>
+				<insert>dependencies {   implementation  'com.google.ads.mediation:vungle:6.8.1.1'	}</insert>
+			<insertNewline/>
+			</true>
+		</if>
+
+
+
+
+</buildGradleAdditions>
+
+
+	<androidManifestUpdates>
+		<if condition="bAdMobEnable"><true>
+
+			<addPermission android:name="android.permission.INTERNET"/>
+			<addPermission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+			</true>	</if>
+	</androidManifestUpdates>
+
+	<gameActivityOnCreateAdditions>
+		<if condition="bAdMobEnable"> <true> <insert>
+					<![CDATA[
+				// Initialize the Mobile Ads SDK.
+
+				MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+
+			]]>
+				</insert> </true> </if>
+
+
+		<if condition="bMediationEnable">
+			<true>
+				<insert>
+
+					<![CDATA[
+                Map<String, AdapterStatus> statusMap = initializationStatus.getAdapterStatusMap();
+                for (String adapterClass : statusMap.keySet()) {
+                    AdapterStatus status = statusMap.get(adapterClass);
+                   Log.debug(String.format(
+                            "Adapter name: %s, Description: %s, Latency: %d",
+                            adapterClass, status.getDescription(), status.getLatency()));
+                }
+				]]>
+				</insert>
+			</true>
+		</if>
+		<if condition="bAdMobEnable"><true>	<insert>
+							<![CDATA[
+            }
+        });
+
+			]]>
+			</insert></true></if>
+
+		<!-- to get test ads on this device.-->
+
+	    <if condition="bAdMobEnable"><true><insert>
+			<![CDATA[
+
+        MobileAds.setRequestConfiguration(
+            new RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("]]>
+			</insert>
+		<insertValue value="$S(testDeviceID)"/>
+		<insert>
+		<![CDATA[")).build());
+
+		 ]]>
+		</insert></true></if>
+
+
+		<!-- Set admob family policy-->
+		<if condition="bFamilyPolicy"><true><insert>
+		<![CDATA[
+
+		RequestConfiguration requestConfiguration =
+		MobileAds.getRequestConfiguration().toBuilder().setTagForChildDirectedTreatment(
+        RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
+        .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G).build();
+        MobileAds.setRequestConfiguration(requestConfiguration);
+
+		 ]]>
+		</insert></true></if>
+
+	</gameActivityOnCreateAdditions>
+
+
+	<gameActivityImportAdditions>
+		<if condition="bAdMobEnable"><true>	<insert>
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+
+
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdSize;
+
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.InterstitialAd;
+
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdCallback;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+
+
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
+import com.google.android.gms.ads.initialization.AdapterStatus;
+
+		</insert></true></if>
+
+
+	</gameActivityImportAdditions>
+
+
+    <gameActivityClassAdditions>
+
+
+		<if condition="bAdMobEnable">
+			<true>
+			<insert>
+				<![CDATA[
+			 /** AdMob support */
+    private PopupWindow adPopupWindow;
+    private AdView adView;
+	private LinearLayout adLayout;
+
+	// Banner Ads
+    private int adGravity = Gravity.TOP;
+	private boolean adInit = false;
+	private boolean adWantsToBeShown = false;
+	private boolean adIsRequested = false;
+	private boolean adIsAvailable = false;
+
+	//Interstial Ads
+    private InterstitialAd interstitialAd;
+    private boolean isInterstitialAdLoaded = false;
+    private boolean isInterstitialAdRequested = false;
+    private AdRequest interstitialAdRequest;
+
+	//Rewarded Video Ads
+   private boolean isRewardedAdLoaded = false;
+   private boolean isRewardedAdRequested = false;
+   private RewardedAd rewardedAd;
+   private AdRequest RewardRequest;
+   boolean isLoading;
+
+
+	//Calling *.cpp load reward ads code
+	public static native void CPPRewardAd(int index);
+	public static native void CPPUserEarnRewardAd(String rewardType, int amount);
+
+
+	// handle ad popup visibility and requests
+	private void updateAdVisibility(boolean loadIfNeeded)
+	{
+		if (!adInit || (adPopupWindow == null))
+		{
+			return;
+		}
+
+		// request an ad if we don't have one available or requested, but would like one
+		if (adWantsToBeShown && !adIsAvailable && !adIsRequested && loadIfNeeded)
+		{
+			AdRequest adRequest = new AdRequest.Builder().build();		// add test devices here
+			_activity.adView.loadAd(adRequest);
+
+			adIsRequested = true;
+		}
+
+		if (adIsAvailable && adWantsToBeShown)
+		{
+			if (adPopupWindow.isShowing())
+			{
+				return;
+			}
+
+			adPopupWindow.showAtLocation(activityLayout, adGravity, 0, 0);
+			// don't call update on 7.0 to work around this issue: https://code.google.com/p/android/issues/detail?id=221001
+			if (ANDROID_BUILD_VERSION != 24) {
+				adPopupWindow.update();
+			}
+		}
+		else
+		{
+			if (!adPopupWindow.isShowing())
+			{
+				return;
+			}
+
+			adPopupWindow.dismiss();
+			adPopupWindow.update();
+		}
+	}
+
+
+
+	public void AndroidThunkJava_ShowAdBanner_AdMob(String AdMobAdUnitID, boolean bShowOnBottonOfScreen)
+	{
+	Log.debug("In AndroidThunkJava_ShowAdBanner");
+		Log.debug("AdID: " + AdMobAdUnitID);
+
+		adGravity = bShowOnBottonOfScreen ? Gravity.BOTTOM : Gravity.TOP;
+
+		if (adInit)
+		{
+			// already created, make it visible
+			_activity.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if ((adPopupWindow == null) || adPopupWindow.isShowing())
+					{
+						return;
+					}
+
+					adWantsToBeShown = true;
+					updateAdVisibility(true);
+				}
+			});
+
+			return;
+		}
+
+		// init our AdMob window
+		adView = new AdView(this);
+		adView.setAdUnitId(AdMobAdUnitID);
+		adView.setAdSize(AdSize.BANNER);
+
+		if (adView != null)
+		{
+			_activity.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					adInit = true;
+
+					final DisplayMetrics dm = getResources().getDisplayMetrics();
+					final float scale = dm.density;
+					adPopupWindow = new PopupWindow(_activity);
+					adPopupWindow.setWidth((int)(320*scale));
+					adPopupWindow.setHeight((int)(50*scale));
+					adPopupWindow.setClippingEnabled(false);
+
+					adLayout = new LinearLayout(_activity);
+
+					final int padding = (int)(-5*scale);
+					adLayout.setPadding(padding,padding,padding,padding);
+
+					MarginLayoutParams params = new MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);;
+
+					params.setMargins(0,0,0,0);
+
+					adLayout.setOrientation(LinearLayout.VERTICAL);
+					adLayout.addView(adView, params);
+					adPopupWindow.setContentView(adLayout);
+
+					// set up our ad callbacks
+					_activity.adView.setAdListener(new AdListener()
+					{
+						 @Override
+						public void onAdLoaded()
+						{
+							adIsAvailable = true;
+							adIsRequested = false;
+
+							updateAdVisibility(true);
+						}
+
+						 @Override
+						public void onAdFailedToLoad(int errorCode)
+						{
+							adIsAvailable = false;
+							adIsRequested = false;
+
+							// don't immediately request a new ad on failure, wait until the next show
+							updateAdVisibility(false);
+						}
+					});
+
+					adWantsToBeShown = true;
+					updateAdVisibility(true);
+				}
+			});
+		}
+	}
+
+
+	public void AndroidThunkJava_HideBanner_AdMob()
+	{
+	Log.debug("In AndroidThunkJava_HideAdBanner");
+
+		if (!adInit)
+		{
+			return;
+		}
+
+		_activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				adWantsToBeShown = false;
+				updateAdVisibility(true);
+			}
+		});
+	}
+
+
+	public void AndroidThunkJava_CloseBanner_AdMob()
+	{
+	Log.debug("In AndroidThunkJava_CloseAdBanner");
+
+		if (!adInit)
+		{
+			return;
+		}
+
+		// currently the same as hide.  should we do a full teardown?
+		_activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				adWantsToBeShown = false;
+				updateAdVisibility(true);
+			}
+		});
+	}
+
+
+	//--------------------------------------------------------------------------------------------------------------
+
+	public void AndroidThunkJava_LoadInterstitialAd_AdMob(String AdMobAdUnitID)
+	{
+		interstitialAdRequest = new AdRequest.Builder().build();
+
+		interstitialAd = new InterstitialAd(this);
+		isInterstitialAdLoaded = false;
+		isInterstitialAdRequested = true;
+		interstitialAd.setAdUnitId(AdMobAdUnitID);
+
+		_activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				interstitialAd.loadAd(interstitialAdRequest);
+			}
+		});
+
+		interstitialAd.setAdListener(new AdListener()
+		{
+			@Override
+			public void onAdFailedToLoad(int errorCode)
+			{
+				Log.debug("Interstitial Ad failed to load, errocode: " + errorCode);
+				isInterstitialAdLoaded = false;
+				isInterstitialAdRequested = false;
+			}
+			@Override
+			public void onAdLoaded()
+			{
+				//track if the ad is loaded since we can only called interstitialAd.isLoaded() from the uiThread
+				isInterstitialAdLoaded = true;
+				isInterstitialAdRequested = false;
+			}
+		});
+				}
+
+
+	public boolean AndroidThunkJava_IsInterstitialAdAvailable_AdMob()
+	{
+	return interstitialAd != null && isInterstitialAdLoaded;
+	}
+
+
+	public boolean AndroidThunkJava_IsInterstitialAdRequested_AdMob()
+	{
+	return interstitialAd != null && isInterstitialAdRequested;
+	}
+
+	public void AndroidThunkJava_ShowInterstitialAd_AdMob()
+	{
+
+	if(isInterstitialAdLoaded)
+		{
+		isInterstitialAdLoaded = false;
+			_activity.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					interstitialAd.show();
+				}
+			});
+		}
+		else
+		{
+			Log.debug("Interstitial Ad is not available to show - call LoadInterstitialAd or wait for it to finish loading");
+		}
+
+	}
+
+	// Rewarded Functionalities --------------------------------------------------------------------------------------------------------------
+
+
+
+	public boolean AndroidThunkJava_IsRewardedVideoAvailable_AdMob()
+	{
+	return rewardedAd != null && isRewardedAdLoaded;
+	}
+
+
+	public boolean AndroidThunkJava_IsRewardedVideoRequested_AdMob()
+	{
+	return rewardedAd != null &&  isRewardedAdRequested;
+	}
+
+	public void AndroidThunkJava_LoadRewardedVideo_AdMob(String AdMobAdUnitID)
+	{
+
+	  rewardedAd = new RewardedAd(this, AdMobAdUnitID);
+	  RewardRequest = new AdRequest.Builder().build();
+      isRewardedAdRequested=true;
+      isRewardedAdLoaded= false;
+
+	  _activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				rewardedAd.loadAd(RewardRequest,new RewardedAdLoadCallback()
+				{
+            @Override
+            public void onRewardedAdLoaded() {
+              Log.debug("Load function | Rewarded video is loaded " );
+              isRewardedAdLoaded =true;
+			  isRewardedAdRequested=false;
+			  CPPRewardAd(1);
+               }
+
+            @Override
+            public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
+              Log.debug(" Load function | Rewarded video is failed to load " );
+             isRewardedAdLoaded= false;
+			 isRewardedAdRequested=false;
+			 CPPRewardAd(2);
+               }
+          });
+			}
+		});
+
+
+
+	}
+
+	public void AndroidThunkJava_PlayRewardedVideo_AdMob()
+	{
+	Log.debug("call play reward video ads funtion");
+    if (isRewardedAdLoaded) {
+	Log.debug("rewarded ad is  loaded");
+	isRewardedAdLoaded= false;
+
+
+		_activity.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					rewardedAd.show(GameActivity.this, new RewardedAdCallback()
+	  {
+            @Override
+            public void onRewardedAdOpened() {
+			Log.debug("play rewarded video | rewarded ad is open");
+
+			CPPRewardAd(3);
+           }
+
+            @Override
+            public void onRewardedAdClosed() {
+             Log.debug("play rewarded video | rewarded ad is close");
+
+			CPPRewardAd(4);
+            }
+
+            @Override
+            public void onUserEarnedReward(RewardItem rewardItem) {
+             Log.debug("play rewarded video | rewarded ad is userEarnReward");
+			 CPPUserEarnRewardAd(rewardItem.getType(),rewardItem.getAmount());
+
+            }
+
+            @Override
+            public void onRewardedAdFailedToShow(AdError adError) {
+             Log.debug("play rewarded video | rewarded ad is failed to show");
+
+			 CPPRewardAd(5);
+            }
+        });
+				}
+			});
+
+
+    }
+	else {Log.debug("rewarded ad is not loaded");}
+
+
+	}
+
+
+	]]>	</insert>
+			</true>
+			<false>
+			<insert>
+			<![CDATA[
+
+	public void AndroidThunkJava_ShowAdBanner_AdMob(String AdMobAdUnitID, boolean bShowOnBottonOfScreen)
+	{
+	}
+
+	public void AndroidThunkJava_HideBanner_AdMob()
+	{
+	}
+
+	public void AndroidThunkJava_CloseBanner_AdMob()
+	{
+	}
+
+
+	//--------------------------------------------------------------------------------------------------------------
+
+	public void AndroidThunkJava_LoadInterstitialAd_AdMob(String AdMobAdUnitID)
+	{
+	}
+
+	public boolean AndroidThunkJava_IsInterstitialAdAvailable_AdMob()
+	{	return false;
+	}
+
+	public boolean AndroidThunkJava_IsInterstitialAdRequested_AdMob()
+	{	return false;
+	}
+
+	public void AndroidThunkJava_ShowInterstitialAd_AdMob()
+	{
+	}
+
+	// Rewarded Functionalities --------------------------------------------------------------------------------------------------------------
+
+	public boolean AndroidThunkJava_IsRewardedVideoAvailable_AdMob()
+	{	return false;
+	}
+
+
+	public boolean AndroidThunkJava_IsRewardedVideoRequested_AdMob()
+	{	return false;
+	}
+
+	public void AndroidThunkJava_LoadRewardedVideo_AdMob(String AdMobAdUnitID)
+	{
+	}
+
+	public void AndroidThunkJava_PlayRewardedVideo_AdMob()
+	{
+	}
+
+	]]>
+			</insert>
+			</false>
+
+		</if>
+	</gameActivityClassAdditions>
+
+	<proguardAdditions>
+		<if condition ="bAdMobEnable">
+			<true>
+			<insert>
+				# For Google Play Services
+-keep public class com.google.android.gms.ads.**{
+   public *;
+}
+
+# For old ads classes
+-keep public class com.google.ads.**{
+   public *;
+}
+
+# For mediation
+-keepattributes *Annotation*
+
+# Other required classes for Google Play Services
+# Read more at http://developer.android.com/google/play-services/setup.html
+-keep class * extends java.util.ListResourceBundle {
+   protected Object[][] getContents();
+}
+
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+   public static final *** NULL;
+}
+
+-keepnames @com.google.android.gms.common.annotation.KeepName class *
+-keepclassmembernames class * {
+   @com.google.android.gms.common.annotation.KeepName *;
+}
+
+-keepnames class * implements android.os.Parcelable {
+   public static final ** CREATOR;
+}
+
+			</insert></true>
+		</if>
+	</proguardAdditions>
+
+</root>
